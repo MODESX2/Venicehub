@@ -1,5 +1,5 @@
 --[[=====================================================================
-    VENICE HUB  ·  STREET LIFE REMASTERED  ·  v1.4
+    VENICE HUB  ·  STREET LIFE REMASTERED  ·  v1.5
     MULTIPLATAFORMA  ·  Delta (Android / iOS) + PC
 
     ATAJOS PC:  Ctrl derecho o K  ->  abre / cierra el menú
@@ -13,6 +13,8 @@
     PERSONALIZAR: CFG.OrbImage (asset de la carita anime), CFG.Ink
 =====================================================================]]
 
+print("VENICE 1/10 · inicio")
+
 if getgenv().VeniceHub then pcall(function() getgenv().VeniceHub:Destroy() end) end
 getgenv().VeniceHub = nil
 
@@ -22,7 +24,7 @@ local UIS     = game:GetService("UserInputService")
 local TS      = game:GetService("TweenService")
 local WS      = workspace
 local LP      = Players.LocalPlayer
-local CAM     = WS.CurrentCamera
+local CAM     = WS.CurrentCamera or WS:WaitForChild("Camera")
 
 local IS_MOBILE = UIS.TouchEnabled and not UIS.MouseEnabled
 
@@ -90,9 +92,11 @@ local function pressFx(b)
 end
 
 --==================================================================== ROOT
+print("VENICE 2/10 · gui")
+
 local gui = new("ScreenGui", {
 	Name = "VeniceHub", ResetOnSpawn = false,
-	IgnoreGuiInset = true, DisplayOrder = 2147483000,
+	IgnoreGuiInset = true, DisplayOrder = 100,
 	ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
 })
 parentGui(gui)
@@ -102,12 +106,18 @@ local blur = Instance.new("BlurEffect")
 blur.Size = 0
 blur.Parent = game:GetService("Lighting")
 
+WS:GetPropertyChangedSignal("CurrentCamera"):Connect(function()
+	if WS.CurrentCamera then CAM = WS.CurrentCamera end
+end)
+
 local vpSize = CAM.ViewportSize
 local portrait = vpSize.Y > vpSize.X
 local winW = IS_MOBILE and 320 or 560
 local winH = IS_MOBILE and 420 or 520
 
 --==================================================================== ORB
+print("VENICE 3/10 · orbe")
+
 local orbHold = new("Frame", {
 	Size = UDim2.fromOffset(72, 72),
 	Position = UDim2.new(1, -88, 0.44, 0),
@@ -129,19 +139,19 @@ corner(orbBody, 40)
 stroke(orbBody, CFG.White, 2, 0.08)
 
 new("TextLabel", {
-	Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1,
+	Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, Active = false,
 	Text = "👁", TextSize = 27, TextColor3 = CFG.Ink,
 	Font = Enum.Font.GothamBold, Parent = orbBody,
 })
 
 local orbImg = new("ImageLabel", {
-	Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1,
+	Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, Active = false,
 	Image = CFG.OrbImage, Parent = orbBody,
 })
 corner(orbImg, 40)
 
 local sideTab = new("TextButton", {
-	Size = UDim2.fromOffset(28, 58), Position = UDim2.new(0, 0, 0.5, -29),
+	Size = UDim2.fromOffset(28, 58), Position = UDim2.new(0, 7, 0.5, -29),
 	BackgroundColor3 = CFG.White, BackgroundTransparency = 0.12,
 	Text = "›", TextSize = 18, TextColor3 = CFG.Ink, Font = Enum.Font.GothamBold,
 	AutoButtonColor = false, Parent = gui,
@@ -150,6 +160,8 @@ corner(sideTab, 14)
 stroke(sideTab, CFG.White, 1, 0.2)
 
 --==================================================================== WINDOW
+print("VENICE 4/10 · ventana")
+
 local win = new("Frame", {
 	Size = UDim2.fromOffset(winW, winH),
 	Position = UDim2.fromOffset(16, 16),
@@ -163,14 +175,14 @@ local winScale = new("UIScale", { Scale = 1, Parent = win })
 local blobA = new("Frame", {
 	Size = UDim2.fromOffset(210, 210), Position = UDim2.new(1, -140, 0, -90),
 	BackgroundColor3 = Color3.fromRGB(224, 231, 255),
-	BackgroundTransparency = 0.5, Parent = win,
+	BackgroundTransparency = 0.5, Active = false, Parent = win,
 })
 corner(blobA, 110)
 
 local blobB = new("Frame", {
 	Size = UDim2.fromOffset(180, 180), Position = UDim2.new(0, -80, 1, -90),
 	BackgroundColor3 = Color3.fromRGB(255, 224, 240),
-	BackgroundTransparency = 0.55, Parent = win,
+	BackgroundTransparency = 0.55, Active = false, Parent = win,
 })
 corner(blobB, 100)
 
@@ -189,18 +201,18 @@ local header = new("Frame", { Size = UDim2.new(1, 0, 0, 56), BackgroundTranspare
 
 new("Frame", {
 	Size = UDim2.fromOffset(44, 4), Position = UDim2.new(0.5, -22, 0, 8),
-	BackgroundColor3 = Color3.fromRGB(206, 206, 216), Parent = win,
+	BackgroundColor3 = Color3.fromRGB(206, 206, 216), Active = false, Parent = win,
 })
 
 new("TextLabel", {
 	Size = UDim2.fromOffset(230, 18), Position = UDim2.fromOffset(18, 16),
 	BackgroundTransparency = 1, Text = "VENICE HUB", TextSize = 15,
-	TextColor3 = CFG.Ink, Font = Enum.Font.GothamBold,
+	TextColor3 = CFG.Ink, Font = Enum.Font.GothamBold, Active = false,
 	TextXAlignment = Enum.TextXAlignment.Left, Parent = header,
 })
 new("TextLabel", {
 	Size = UDim2.fromOffset(230, 13), Position = UDim2.fromOffset(18, 33),
-	BackgroundTransparency = 1,
+	BackgroundTransparency = 1, Active = false,
 	Text = IS_MOBILE and "Street Life Remastered" or "Street Life Remastered · Ctrl / K",
 	TextSize = 9, TextColor3 = CFG.Muted, Font = Enum.Font.GothamMedium,
 	TextXAlignment = Enum.TextXAlignment.Left, Parent = header,
@@ -221,6 +233,8 @@ local btnMin = headerBtn("—", -80)
 local btnClose = headerBtn("✕", -42)
 
 --==================================================================== TABS
+print("VENICE 5/10 · pestañas")
+
 local rail = new("Frame", {
 	Size = UDim2.new(0, 62, 1, -56), Position = UDim2.fromOffset(0, 56),
 	BackgroundTransparency = 1, Parent = win,
@@ -293,14 +307,14 @@ local function switchRow(parent, key, titleTxt, descTxt, onChange)
 
 	new("TextLabel", {
 		Size = UDim2.new(1, -68, 0, 16), Position = UDim2.fromOffset(13, 11),
-		BackgroundTransparency = 1, Text = titleTxt, TextSize = 12,
+		BackgroundTransparency = 1, Text = titleTxt, TextSize = 12, Active = false,
 		TextColor3 = CFG.Ink, Font = Enum.Font.GothamBold,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.AtEnd, Parent = r,
 	})
 	new("TextLabel", {
 		Size = UDim2.new(1, -68, 0, 13), Position = UDim2.fromOffset(13, 29),
-		BackgroundTransparency = 1, Text = descTxt, TextSize = 9,
+		BackgroundTransparency = 1, Text = descTxt, TextSize = 9, Active = false,
 		TextColor3 = CFG.Muted, Font = Enum.Font.GothamMedium,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextTruncate = Enum.TextTruncate.AtEnd, Parent = r,
@@ -313,7 +327,7 @@ local function switchRow(parent, key, titleTxt, descTxt, onChange)
 	corner(track, 14)
 	local knob = new("Frame", {
 		Size = UDim2.fromOffset(24, 24), Position = UDim2.fromOffset(2, 2),
-		BackgroundColor3 = CFG.White, Parent = track,
+		BackgroundColor3 = CFG.White, Active = false, Parent = track,
 	})
 	corner(knob, 12)
 	local hit = new("TextButton", {
@@ -342,13 +356,13 @@ local function buttonRow(parent, titleTxt, descTxt, onClick, dark)
 	stroke(r, Color3.fromRGB(228, 228, 236), 1, 0.3)
 	new("TextLabel", {
 		Size = UDim2.new(1, -26, 0, 16), Position = UDim2.fromOffset(13, 11),
-		BackgroundTransparency = 1, Text = titleTxt, TextSize = 12,
+		BackgroundTransparency = 1, Text = titleTxt, TextSize = 12, Active = false,
 		TextColor3 = dark and CFG.White or CFG.Ink,
 		Font = Enum.Font.GothamBold, TextXAlignment = Enum.TextXAlignment.Left, Parent = r,
 	})
 	new("TextLabel", {
 		Size = UDim2.new(1, -26, 0, 13), Position = UDim2.fromOffset(13, 29),
-		BackgroundTransparency = 1, Text = descTxt, TextSize = 9,
+		BackgroundTransparency = 1, Text = descTxt, TextSize = 9, Active = false,
 		TextColor3 = dark and Color3.fromRGB(228, 228, 232) or CFG.Muted,
 		Font = Enum.Font.GothamMedium, TextXAlignment = Enum.TextXAlignment.Left, Parent = r,
 	})
@@ -374,16 +388,16 @@ local function sliderRow(parent, titleTxt, min, max, key, onChange, isFloat)
 		Size = UDim2.new(1, -26, 0, 15), Position = UDim2.fromOffset(13, 10),
 		BackgroundTransparency = 1, Text = titleTxt .. "  ·  " .. fmt(S[key]),
 		TextSize = 11, TextColor3 = CFG.Ink, Font = Enum.Font.GothamBold,
-		TextXAlignment = Enum.TextXAlignment.Left, Parent = r,
+		TextXAlignment = Enum.TextXAlignment.Left, Active = false, Parent = r,
 	})
 	local bar = new("Frame", {
 		Size = UDim2.new(1, -26, 0, 6), Position = UDim2.fromOffset(13, 42),
-		BackgroundColor3 = Color3.fromRGB(226, 226, 234), Parent = r,
+		BackgroundColor3 = Color3.fromRGB(226, 226, 234), Active = false, Parent = r,
 	})
 	corner(bar, 3)
 	local fill = new("Frame", {
 		Size = UDim2.fromScale((S[key] - min) / (max - min), 1),
-		BackgroundColor3 = CFG.Ink, Parent = bar,
+		BackgroundColor3 = CFG.Ink, Active = false, Parent = bar,
 	})
 	corner(fill, 3)
 	local hit = new("TextButton", {
@@ -434,7 +448,7 @@ local toast = new("Frame", {
 })
 corner(toast, 15)
 local toastLabel = new("TextLabel", {
-	Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, Text = "",
+	Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, Text = "", Active = false,
 	TextSize = 11, TextColor3 = CFG.White, Font = Enum.Font.GothamBold,
 	TextWrapped = true, Parent = toast,
 })
@@ -460,23 +474,23 @@ local loaderTitle = new("TextLabel", {
 	Size = UDim2.new(1, -26, 0, 15), Position = UDim2.fromOffset(14, 12),
 	BackgroundTransparency = 1, Text = "", TextSize = 11, TextColor3 = CFG.Ink,
 	Font = Enum.Font.GothamBold, TextXAlignment = Enum.TextXAlignment.Left,
-	TextTruncate = Enum.TextTruncate.AtEnd, Parent = loader,
+	TextTruncate = Enum.TextTruncate.AtEnd, Active = false, Parent = loader,
 })
 
 local barBg = new("Frame", {
 	Size = UDim2.new(1, -78, 0, 7), Position = UDim2.fromOffset(14, 39),
-	BackgroundColor3 = Color3.fromRGB(226, 226, 234), Parent = loader,
+	BackgroundColor3 = Color3.fromRGB(226, 226, 234), Active = false, Parent = loader,
 })
 corner(barBg, 4)
 local barFill = new("Frame", {
-	Size = UDim2.fromScale(0, 1), BackgroundColor3 = CFG.Ink, Parent = barBg,
+	Size = UDim2.fromScale(0, 1), BackgroundColor3 = CFG.Ink, Active = false, Parent = barBg,
 })
 corner(barFill, 4)
 
 local loaderStatus = new("TextLabel", {
 	Size = UDim2.new(1, -26, 0, 13), Position = UDim2.fromOffset(14, 53),
 	BackgroundTransparency = 1, Text = "INYECTANDO...", TextSize = 9,
-	TextColor3 = CFG.Muted, Font = Enum.Font.GothamBold,
+	TextColor3 = CFG.Muted, Font = Enum.Font.GothamBold, Active = false,
 	TextXAlignment = Enum.TextXAlignment.Left, Parent = loader,
 })
 
@@ -525,15 +539,17 @@ local function inject(label, dur, apply)
 end
 
 --==================================================================== ESP ENGINE
+print("VENICE 6/10 · motor esp")
+
 local espGui = new("ScreenGui", {
 	Name = "VeniceESP", ResetOnSpawn = false,
-	IgnoreGuiInset = true, DisplayOrder = 2147482990, Parent = gui,
+	IgnoreGuiInset = true, DisplayOrder = 90, Parent = gui,
 })
 
 local fovRing = new("Frame", {
 	AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5),
 	Size = UDim2.fromOffset(S.fov * 2, S.fov * 2),
-	BackgroundTransparency = 1, Visible = false, Parent = espGui,
+	BackgroundTransparency = 1, Visible = false, Active = false, Parent = espGui,
 })
 corner(fovRing, 1000)
 stroke(fovRing, CFG.White, 1.4, 0.2)
@@ -545,11 +561,11 @@ local function getPool(plr)
 	local p = {
 		line = new("Frame", {
 			BackgroundColor3 = CFG.White, Size = UDim2.fromOffset(1, 0),
-			Visible = false, Parent = espGui,
+			Visible = false, Active = false, Parent = espGui,
 		}),
 		box = new("Frame", {
 			BackgroundColor3 = CFG.White, BackgroundTransparency = 1,
-			Visible = false, Parent = espGui,
+			Visible = false, Active = false, Parent = espGui,
 		}),
 		segments = {},
 	}
@@ -577,7 +593,7 @@ local function setSeg(p, i)
 	if not p.segments[i] then
 		p.segments[i] = new("Frame", {
 			BackgroundColor3 = CFG.White, Size = UDim2.fromOffset(0, 1),
-			Visible = false, Parent = espGui,
+			Visible = false, Active = false, Parent = espGui,
 		})
 	end
 	return p.segments[i]
@@ -815,6 +831,8 @@ local function findStamina()
 end
 
 --==================================================================== AIM CORE
+print("VENICE 7/10 · puntería")
+
 local mouse = LP:GetMouse()
 local lastFire = 0
 
@@ -993,6 +1011,8 @@ local function teleportKill()
 end
 
 --==================================================================== TABS BUILD
+print("VENICE 8/10 · páginas")
+
 local pvPage = makeTab("esp", "👁")
 local aimPage = makeTab("aim", "🎯")
 local brutalPage = makeTab("brutal", "💀")
@@ -1001,14 +1021,14 @@ local cfgPage = makeTab("cfg", "⚙")
 --==================================================================== PREVIEW
 local previewWrap = new("Frame", {
 	BackgroundColor3 = Color3.fromRGB(226, 228, 240),
-	ClipsDescendants = true, Parent = pvPage,
+	ClipsDescendants = true, Active = false, Parent = pvPage,
 })
 corner(previewWrap, 16)
 
 local viewport = new("ViewportFrame", {
 	Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.fromRGB(222, 226, 240),
 	Ambient = Color3.fromRGB(214, 214, 232), LightColor = Color3.fromRGB(255, 255, 255),
-	LightDirection = Vector3.new(-1, -1, -1), Parent = previewWrap,
+	LightDirection = Vector3.new(-1, -1, -1), Active = false, Parent = previewWrap,
 })
 corner(viewport, 16)
 
@@ -1017,22 +1037,22 @@ viewport.CurrentCamera = pvCam
 pvCam.CFrame = CFrame.new(Vector3.new(0, 0.5, 7.4), Vector3.new(0, -0.3, 0))
 
 local pvOverlay = new("Frame", {
-	Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, Parent = previewWrap,
+	Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, Active = false, Parent = previewWrap,
 })
 
 local pvLine = new("Frame", {
 	Size = UDim2.fromScale(0.012, 0.5), Position = UDim2.fromScale(0.494, 0.14),
-	BackgroundColor3 = CFG.White, Visible = false, Parent = pvOverlay,
+	BackgroundColor3 = CFG.White, Visible = false, Active = false, Parent = pvOverlay,
 })
 local pvBox = new("Frame", {
 	Size = UDim2.fromScale(0.5, 0.56), Position = UDim2.fromScale(0.25, 0.22),
-	BackgroundTransparency = 1, Visible = false, Parent = pvOverlay,
+	BackgroundTransparency = 1, Visible = false, Active = false, Parent = pvOverlay,
 })
 stroke(pvBox, CFG.White, 1.5, 0)
 
 local pvSkel = new("Frame", {
 	Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1,
-	Visible = false, Parent = pvOverlay,
+	Visible = false, Active = false, Parent = pvOverlay,
 })
 
 local function pvSeg(a, b)
@@ -1041,7 +1061,7 @@ local function pvSeg(a, b)
 		Size = UDim2.fromScale(math.abs(b.X - a.X), 0.006),
 		Position = UDim2.fromScale(a.X, a.Y),
 		Rotation = math.deg(math.atan2((b.Y - a.Y) * 1.75, b.X - a.X)),
-		Parent = pvSkel,
+		Active = false, Parent = pvSkel,
 	})
 end
 pvSeg(Vector2.new(0.5, 0.24), Vector2.new(0.5, 0.56))
@@ -1052,19 +1072,19 @@ pvSeg(Vector2.new(0.5, 0.56), Vector2.new(0.62, 0.79))
 
 local pvHead = new("Frame", {
 	Size = UDim2.fromScale(0.15, 0.14), Position = UDim2.fromScale(0.425, 0.1),
-	BackgroundTransparency = 1, Parent = pvSkel,
+	BackgroundTransparency = 1, Active = false, Parent = pvSkel,
 })
 corner(pvHead, 40)
 stroke(pvHead, CFG.White, 1.5, 0)
 
 new("TextLabel", {
 	Size = UDim2.new(1, 0, 0, 14), Position = UDim2.fromScale(0, 0.05),
-	BackgroundTransparency = 1, Text = LP.Name, TextSize = 10,
+	BackgroundTransparency = 1, Text = LP.Name, TextSize = 10, Active = false,
 	TextColor3 = CFG.White, Font = Enum.Font.GothamBold, Parent = pvOverlay,
 })
 new("TextLabel", {
 	Size = UDim2.new(1, -14, 0, 12), Position = UDim2.new(0, 8, 1, -20),
-	BackgroundTransparency = 1, Text = "VISUALIZACIÓN", TextSize = 8,
+	BackgroundTransparency = 1, Text = "VISUALIZACIÓN", TextSize = 8, Active = false,
 	TextColor3 = CFG.White, Font = Enum.Font.GothamBold,
 	TextXAlignment = Enum.TextXAlignment.Left, Parent = pvOverlay,
 })
@@ -1142,7 +1162,7 @@ corner(colorRow, 15)
 stroke(colorRow, Color3.fromRGB(228, 228, 236), 1, 0.3)
 new("TextLabel", {
 	Size = UDim2.new(1, -20, 0, 14), Position = UDim2.fromOffset(12, 7),
-	BackgroundTransparency = 1, Text = "COLOR HOLOGRAMA", TextSize = 9,
+	BackgroundTransparency = 1, Text = "COLOR HOLOGRAMA", TextSize = 9, Active = false,
 	TextColor3 = CFG.Muted, Font = Enum.Font.GothamBold,
 	TextXAlignment = Enum.TextXAlignment.Left, Parent = colorRow,
 })
@@ -1272,6 +1292,16 @@ end)
 --==================================================================== CONFIG PAGE
 local cfgScroll = scroller(cfgPage)
 
+buttonRow(cfgScroll, "DIAGNÓSTICO", "Imprime el estado en consola", function()
+	print("---- VENICE DIAGNÓSTICO ----")
+	print("gui:", gui, "padre:", gui.Parent, "activo:", gui.Enabled)
+	print("camara:", CAM, "subject:", CAM and CAM.CameraSubject)
+	print("personaje:", LP.Character, "humanoid:", hum())
+	print("plataforma móvil:", IS_MOBILE)
+	print("---------------------------")
+	notify("Diagnóstico enviado a consola")
+end)
+
 buttonRow(cfgScroll, "REFRESCAR VISTA PREVIA", "Reconstruye tu personaje", function()
 	buildPreview()
 	notify("Vista previa actualizada")
@@ -1307,6 +1337,8 @@ buttonRow(cfgScroll, "CERRAR HUB", "Descarga el script", function()
 end)
 
 --==================================================================== RESPONSIVE
+print("VENICE 9/10 · layout")
+
 local function centerWin()
 	local vp = CAM.ViewportSize
 	local sc = winScale.Scale
@@ -1359,7 +1391,8 @@ local function relayout()
 	loader.Position = UDim2.new(0.5, -loadW / 2, 0.5, -39)
 end
 
-relayout()
+local okLayout, errLayout = pcall(relayout)
+if not okLayout then print("VENICE · error en layout:", errLayout) end
 
 local lastPortrait = portrait
 CAM:GetPropertyChangedSignal("ViewportSize"):Connect(function()
@@ -1367,11 +1400,13 @@ CAM:GetPropertyChangedSignal("ViewportSize"):Connect(function()
 	local nowPortrait = vp.Y > vp.X
 	if nowPortrait ~= lastPortrait then
 		lastPortrait = nowPortrait
-		relayout()
+		pcall(relayout)
 	end
 end)
 
 --==================================================================== DRAG / MINIMIZE
+print("VENICE 10/10 · enlaces")
+
 local function draggable(target, handleObj, onTap)
 	local dragging, startPos, startOff, moved = false, nil, nil, 0
 	local moveConn
@@ -1412,7 +1447,7 @@ local opened = false
 local function openMenu()
 	if opened then return end
 	opened = true
-	relayout()
+	pcall(relayout)
 	win.Visible = true
 	win.BackgroundTransparency = 1
 	tw(win, TweenInfo.new(0.28, Enum.EasingStyle.Quint), { BackgroundTransparency = 0.05 })
@@ -1450,7 +1485,6 @@ btnClose.MouseButton1Click:Connect(function()
 	getgenv().VeniceHub = nil
 end)
 
--- atajo de teclado (PC)
 UIS.InputBegan:Connect(function(input, processed)
 	if processed then return end
 	if input.KeyCode == Enum.KeyCode.RightControl or input.KeyCode == Enum.KeyCode.K then
@@ -1579,8 +1613,9 @@ Players.PlayerAdded:Connect(function(p)
 	p.CharacterAdded:Connect(onChar)
 end)
 
-buildPreview()
-refreshPreview()
+pcall(buildPreview)
+pcall(refreshPreview)
 syncHideBtn()
 
-notify(IS_MOBILE and "VENICE HUB v1.4 cargado" or "VENICE HUB v1.4 cargado · Ctrl o K")
+notify(IS_MOBILE and "VENICE HUB v1.5 cargado" or "VENICE HUB v1.5 cargado · Ctrl o K")
+print("VENICE · listo")
